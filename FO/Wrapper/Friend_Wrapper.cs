@@ -32,9 +32,8 @@ namespace FO.UI.Wrapper
         }
 
         
-        protected override IEnumerable<string>? ValidateProperty(string propertyName)
-        {
-            ClearErrors(propertyName);
+        protected override IEnumerable<string> ValidateProperty(string propertyName)
+        {            
             switch (propertyName)
             {
                 case nameof(FirstName):
@@ -50,7 +49,7 @@ namespace FO.UI.Wrapper
                  case nameof(Email):
                     if (Email == null || string.IsNullOrWhiteSpace(Email))
                         break;
-                    if (!Email.Contains("@"))
+                    if(!Email.Contains('@'))
                         yield return "It's not a valid email address";
                     break;
                 default:

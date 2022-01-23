@@ -6,6 +6,8 @@ namespace FO.UI.ViewModel
 {
     public interface IFriendDetailViewModel
     {
+        bool HasChanges { get; }
+
         Task LoadAsync(int id);
     }
 }

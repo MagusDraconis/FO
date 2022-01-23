@@ -14,9 +14,8 @@ namespace FO
     public partial class App : Application
     {
         private void Application_Startup(object sender, StartupEventArgs e)
-        {
-            var boostrapper = new Bootstrapper();
-            var container = boostrapper.Bootstrap();
+        {            
+            var container = Bootstrapper.Bootstrap();
 
             var mainWindow = container.Resolve<MainWindow>();
             mainWindow.Show();

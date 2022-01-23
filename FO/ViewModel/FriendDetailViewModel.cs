@@ -16,20 +16,21 @@ namespace FO.UI.ViewModel
     {
         #region Constructor
 
-        public FriendDetailViewModel(IFriendDataService dataService, IEventAggregator eventAggregator)
+        public FriendDetailViewModel(IFriendRepository repository, IEventAggregator eventAggregator)
         {
-            this._DataService = dataService;
+            this._FriendRepository = repository;
             this._EventAggregator = eventAggregator;
-            _EventAggregator.GetEvent<OpenFriendDetailView_Event>().Subscribe(OnOpenFriendDetailView);
+            
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
         }
 
         #endregion
 
         #region fields
-        readonly IFriendDataService _DataService;
+        readonly IFriendRepository _FriendRepository;
         readonly IEventAggregator _EventAggregator;
-        private Friend_Wrapper? friend;
+        private Friend_Wrapper? _Friend;
+        bool _HasChanges;
 
         #endregion
 
@@ -37,43 +38,67 @@ namespace FO.UI.ViewModel
 
         public Friend_Wrapper? Friend
         {
-            get { return friend; }
+            get { return _Friend; }
             set
             {
-                friend = value;
+                _Friend = value;
                 OnPropertyChanged();
             }
         }
         public ICommand SaveCommand { get; }
-        
+
+        public bool HasChanges
+        {
+            get => _HasChanges;
+            set
+            {
+                if (_HasChanges == value)
+                    return;                
+
+                _HasChanges = value;
+                OnPropertyChanged();
+                ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
 
         public async Task LoadAsync(int id)
         {
-            if (_DataService == null)
+            if (_FriendRepository == null)
                 return;
-            var data = await _DataService.GetByIdAsync(id);
-            if (data == null)
+            var friend = await _FriendRepository.GetByIdAsync(id);
+            if (friend == null)
                 return;
 
-            Friend = new Friend_Wrapper(data);
+            Friend = new Friend_Wrapper(friend);
+            Friend.PropertyChanged += (sender, e) =>
+            {
+                if (!HasChanges)
+                    HasChanges = _FriendRepository.HasChanges();
+
+                if (e.PropertyName == nameof(Friend.HasErrors))
+                {
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+                }
+            };
+
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
         }
-        private async void OnOpenFriendDetailView(int friendId)
-        {
-            await LoadAsync(friendId);
-        }
+
+
         bool OnSaveCanExecute()
         {
-            //TODO: check fried is valid
-            return true;
+            return Friend != null && !Friend.HasErrors && HasChanges;
         }
-        private void OnSaveExecute()
+        private async void OnSaveExecute()
         {
             if (Friend == null)
                 return;
-            _DataService.SaveAsync(Friend.Model);
+            await _FriendRepository.SaveAsync();
+            HasChanges = _FriendRepository.HasChanges();
             _EventAggregator.GetEvent<AfterFriendSaved_Event>().Publish(new AfterFriendSaved_Event_Args
             {
                 Id = Friend.Id,

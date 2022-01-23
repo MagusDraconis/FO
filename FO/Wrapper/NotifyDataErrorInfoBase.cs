@@ -2,26 +2,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace FO.UI.Wrapper
 {
+    
     public class NotifyDataErrorInfoBase : ViewModelBase, INotifyDataErrorInfo
     {
-        private Dictionary<string, List<string>> _errosByPropertyName = new Dictionary<string, List<string>>();
+        private readonly Dictionary<string, List<string>> _ErrosByPropertyName = new();
 
-        public bool HasErrors => _errosByPropertyName.Any();
+        public bool HasErrors => _ErrosByPropertyName.Any();
 
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
+        
         public IEnumerable GetErrors(string? propertyName)
-        {
+        {            
             if (propertyName == null)
-                return null;
+                return null!;
 
-            if (_errosByPropertyName.ContainsKey(propertyName))
-                return _errosByPropertyName[propertyName];
-            return null;
+            if (_ErrosByPropertyName.ContainsKey(propertyName))
+                return _ErrosByPropertyName[propertyName];
+            return null!;
         }
 
 
@@ -29,25 +32,26 @@ namespace FO.UI.Wrapper
         protected virtual void OnErrorsChanged(string propertyName)
         {
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+            base.OnPropertyChanged(nameof(HasErrors));
         }
         protected void AddError(string propertyName, string error)
         {
-            if (!_errosByPropertyName.ContainsKey(propertyName))
+            if (!_ErrosByPropertyName.ContainsKey(propertyName))
             {
-                _errosByPropertyName[propertyName] = new List<string>();
+                _ErrosByPropertyName[propertyName] = new List<string>();
             }
-            if (!_errosByPropertyName[propertyName].Contains(error))
+            if (!_ErrosByPropertyName[propertyName].Contains(error))
             {
-                _errosByPropertyName[propertyName].Add(error);
+                _ErrosByPropertyName[propertyName].Add(error);
                 OnErrorsChanged(propertyName);
             }
         }
 
         protected void ClearErrors(string propertyName)
         {
-            if (_errosByPropertyName.ContainsKey(propertyName))
+            if (_ErrosByPropertyName.ContainsKey(propertyName))
             {
-                _errosByPropertyName.Remove(propertyName);
+                _ErrosByPropertyName.Remove(propertyName);
                 OnErrorsChanged(propertyName);
             }
         }

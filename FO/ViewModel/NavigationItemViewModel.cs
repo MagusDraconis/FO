@@ -1,5 +1,9 @@
-﻿using System;
+﻿using FO.UI.Event;
+using Prism.Commands;
+using Prism.Events;
+using System;
 using System.Linq;
+using System.Windows.Input;
 
 namespace FO.UI.ViewModel
 {
@@ -7,26 +11,34 @@ namespace FO.UI.ViewModel
     {
 
 
-        public NavigationItemViewModel(int id, string? displayMember)
+        public NavigationItemViewModel(int id, string? displayMember, IEventAggregator eventAggregator)
         {
+            _EventAggregator = eventAggregator;
             DisplayMember = displayMember;
             Id = id;
+            OpenFriendDetailViewCommand = new DelegateCommand(OnOpenFriendDetailView);
         }
         public int Id { get; }
-        string? displayMember;
+        string? _DisplayMember;
+        readonly IEventAggregator _EventAggregator;
         public string? DisplayMember
         {
-            get => displayMember;
+            get => _DisplayMember;
             set
             {
-                if (displayMember == value)
+                if (_DisplayMember == value)
                 {
                     return;
                 }
 
-                displayMember = value;
+                _DisplayMember = value;
                 OnPropertyChanged();
             }
+        }
+        public ICommand OpenFriendDetailViewCommand { get;  }
+        void OnOpenFriendDetailView()
+        {
+            _EventAggregator.GetEvent<OpenFriendDetailView_Event>().Publish(Id);
         }
     }
 }

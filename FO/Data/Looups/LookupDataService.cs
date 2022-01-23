@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FO.UI.Data
+namespace FO.UI.Data.Looups
 {
     public class LookupDataService : IFriendLookupDataService
     {
@@ -19,19 +19,17 @@ namespace FO.UI.Data
 
         public async Task<IEnumerable<LookupItem>?> GetFriendLookupAsync()
         {
-            using (var context = _FoDbContextCreator())
-            {
-                if (context == null || context.Friends == null)
-                    return null;
+            using var context = _FoDbContextCreator();
+            if(context == null || context.Friends == null)
+                return null;
 
-                return await context.Friends.AsNoTracking()
-                    .Select(f => new LookupItem
-                    {
-                        Id = f.Id,
-                        DisplayMember = $"{f.FirstName} {f.LastName}"
-                    })
-                    .ToListAsync();
-            }
+            return await context.Friends.AsNoTracking()
+                .Select(f => new LookupItem
+                {
+                    Id = f.Id,
+                    DisplayMember = $"{f.FirstName} {f.LastName}"
+                })
+                .ToListAsync();
         }
 
     }

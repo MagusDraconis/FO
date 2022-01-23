@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 
 namespace FO.UI
 {
-    public interface IFriendDataService
+    public interface IFriendRepository
     {
         Task<Friend?> GetByIdAsync(int id);
-        Task SaveAsync(Friend friend);
+        Task SaveAsync();
+        bool HasChanges();
     }
 }

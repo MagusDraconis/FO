@@ -1,4 +1,4 @@
-﻿using FO.UI.Data;
+﻿using FO.UI.Data.Looups;
 using FO.UI.Event;
 using Prism.Events;
 using System;
@@ -20,21 +20,21 @@ namespace FO.UI.ViewModel
             _EventAggregator.GetEvent<AfterFriendSaved_Event>().Subscribe(AfterFriendSaved);
         }
         public ObservableCollection<NavigationItemViewModel> Friends { get; }
-        private NavigationItemViewModel? _selectedFriend;
+        //private NavigationItemViewModel? _SelectedFriend;
 
-        public NavigationItemViewModel? SelectedFriend
-        {
-            get { return _selectedFriend; }
-            set
-            {
-                _selectedFriend = value;
-                OnPropertyChanged();
-                if (_selectedFriend != null)
-                {
-                    _EventAggregator.GetEvent<OpenFriendDetailView_Event>().Publish(_selectedFriend.Id);
-                }
-            }
-        }
+        //public NavigationItemViewModel? SelectedFriend
+        //{
+        //    get { return _SelectedFriend; }
+        //    set
+        //    {
+        //        _SelectedFriend = value;
+        //        OnPropertyChanged();
+        //        if (_SelectedFriend != null)
+        //        {
+        //            _EventAggregator.GetEvent<OpenFriendDetailView_Event>().Publish(_SelectedFriend.Id);
+        //        }
+        //    }
+        //}
 
         public async Task LoadAsync()
         {
@@ -44,7 +44,7 @@ namespace FO.UI.ViewModel
             Friends.Clear();
             foreach (var friend in lookup)
             {
-                Friends.Add(new NavigationItemViewModel(friend.Id, friend.DisplayMember));
+                Friends.Add(new NavigationItemViewModel(friend.Id, friend.DisplayMember, _EventAggregator));
             }
         }
         void AfterFriendSaved(AfterFriendSaved_Event_Args obj)

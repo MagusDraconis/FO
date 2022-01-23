@@ -19,7 +19,7 @@ namespace FO.DataAccess
         {
             optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=FoDb");
         }
-        public DbSet<Friend>? Friends { get; set; }
+        public DbSet<Friend> Friends => Set<Friend>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,14 +29,14 @@ namespace FO.DataAccess
             modelBuilder.Entity<Friend>().HasKey(e => e.Id);
             modelBuilder.Entity<Friend>().Property(e => e.FirstName).IsRequired().HasMaxLength(50);
             modelBuilder.Entity<Friend>().Property(e => e.LastName).IsRequired().HasMaxLength(50);
-            modelBuilder.Entity<Friend>().Property(e => e.Email).HasMaxLength(150);
+            modelBuilder.Entity<Friend>().Property(e => e.Email).HasAnnotation("Email",null).HasMaxLength(150);
 
 
             // only First time
             SetInitializedData(modelBuilder);
         }
 
-        private void SetInitializedData(ModelBuilder modelBuilder)
+        private static void SetInitializedData(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Friend>().HasData(new { Id = 1, FirstName = "Thomas", LastName = "Huber" });
             modelBuilder.Entity<Friend>().HasData(new { Id = 2, FirstName = "Fabrice", LastName = "Wieser" });
